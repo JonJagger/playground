@@ -116,7 +116,18 @@ jobs:
         DIGEST=$(echo ${{ steps.docker_build.outputs.digest }} | sed 's/.*://')
         echo "artifact_digest=${DIGEST}" >> ${GITHUB_OUTPUT}
 
+    - name: Setup Kosli CLI
+      uses: kosli-dev/setup-cli-action@v2
+      with:
+        version: ${{ env.KOSLI_CLI_VERSION }}
 
+    - name: Attest image provenance to Kosli Trail
+      run: 
+        kosli attest artifact "${{ needs.setup.outputs.image_name }}" 
+          --artifact-type=docker
+          --name=alpha
+
+          
   lint:
     name: Run rubocop linter and attest to Kosli
     needs: [build-image]
